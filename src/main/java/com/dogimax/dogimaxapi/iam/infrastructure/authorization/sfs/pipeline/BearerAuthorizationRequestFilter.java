@@ -61,4 +61,27 @@ public class BearerAuthorizationRequestFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
+
+    /**
+     * This method determines if the filter should not be applied to certain paths.
+     * @param request The HTTP request
+     * @return true if the filter should not be applied, false otherwise
+     */
+    @Override
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        String path = request.getRequestURI();
+        LOGGER.info("Checking if filter should apply to path: {}", path);
+        
+        boolean shouldNotFilter = path.startsWith("/api/v1/authentication") ||
+                                  path.startsWith("/v3/api-docs") ||
+                                  path.startsWith("/swagger-ui") ||
+                                  path.startsWith("/swagger-resources") ||
+                                  path.equals("/swagger-ui.html") ||
+                                  path.startsWith("/webjars") ||
+                                  path.contains("api-docs") ||
+                                  path.contains("swagger");
+        
+        LOGGER.info("Should NOT filter: {}", shouldNotFilter);
+        return shouldNotFilter;
+    }
 }

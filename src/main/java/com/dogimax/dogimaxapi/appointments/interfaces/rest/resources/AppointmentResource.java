@@ -13,6 +13,7 @@ public record AppointmentResource(
         LocalDateTime fechaHora,
         String motivo,
         String estado,
-        String notas
+        String notas,
+        veterinaryResource veterinary
 ) {
 }
