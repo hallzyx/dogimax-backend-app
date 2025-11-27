@@ -7,6 +7,8 @@ import com.dogimax.dogimaxapi.appointments.infrastructure.persistence.jpa.reposi
 import com.dogimax.dogimaxapi.iam.domain.model.aggregates.User;
 import com.dogimax.dogimaxapi.iam.infrastructure.hashing.bcrypt.BCryptHashingService;
 import com.dogimax.dogimaxapi.iam.infrastructure.persistence.jpa.repositories.UserRepository;
+import com.dogimax.dogimaxapi.notification.domain.model.aggregates.Notification;
+import com.dogimax.dogimaxapi.notification.infrastructure.persistence.jpa.repositories.NotificationJPARepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -39,7 +41,8 @@ public class DatabaseSeeder {
     CommandLineRunner seedDatabase(UserRepository userRepository, 
                                    BCryptHashingService hashingService,
                                    veterinaryRepository veterinaryRepository,
-                                   AppointmentRepository appointmentRepository) {
+                                   AppointmentRepository appointmentRepository,
+                                   NotificationJPARepository notificationRepository) {
         return args -> {
             // Check if database is already seeded
             if (userRepository.count() > 0 || veterinaryRepository.count() > 0 || appointmentRepository.count() > 0) {
@@ -170,6 +173,81 @@ public class DatabaseSeeder {
             );
             appointmentRepository.save(appointment5);
             LOGGER.info("Created appointment 5: {} at {}", appointment5.getMotivo(), appointment5.getFechaHora());
+
+            // Create notifications
+            // Notification 1 - Welcome notification
+            var notification1 = new Notification(
+                    petLover.getId(),
+                    "¡Bienvenido a Dogimax! Estamos encantados de tenerte con nosotros.",
+                    "Bienvenida"
+            );
+            notificationRepository.save(notification1);
+            LOGGER.info("Created notification 1: Welcome notification for user {}", petLover.getId());
+
+            // Notification 2 - Appointment reminder (unread)
+            var notification2 = new Notification(
+                    petLover.getId(),
+                    "Recordatorio: Tienes una cita programada para mañana a las 15:30 en Centro Veterinario Animalia.",
+                    "RecordatorioCita"
+            );
+            notificationRepository.save(notification2);
+            LOGGER.info("Created notification 2: Appointment reminder for user {}", petLover.getId());
+
+            // Notification 3 - Vaccination reminder (unread)
+            var notification3 = new Notification(
+                    petLover.getId(),
+                    "Es momento de la vacunación anual de tu mascota. Agenda tu cita en la sección de Citas.",
+                    "RecordatorioSalud"
+            );
+            notificationRepository.save(notification3);
+            LOGGER.info("Created notification 3: Vaccination reminder for user {}", petLover.getId());
+
+            // Notification 4 - Exam results (read)
+            var notification4 = new Notification(
+                    petLover.getId(),
+                    "Los resultados del análisis de sangre están disponibles. Todo está en orden.",
+                    "ResultadoExamen"
+            );
+            notification4.markAsRead();
+            notificationRepository.save(notification4);
+            LOGGER.info("Created notification 4: Exam results for user {}", petLover.getId());
+
+            // Notification 5 - Special offer (unread)
+            var notification5 = new Notification(
+                    petLover.getId(),
+                    "¡Promoción especial! 20% de descuento en consultas preventivas durante este mes.",
+                    "Promocion"
+            );
+            notificationRepository.save(notification5);
+            LOGGER.info("Created notification 5: Special offer for user {}", petLover.getId());
+
+            // Notification 6 - Appointment confirmation (read)
+            var notification6 = new Notification(
+                    petLover.getId(),
+                    "Tu cita ha sido confirmada para el 7 de diciembre a las 10:00 en Clínica Veterinaria VetSalud.",
+                    "Confirmacion"
+            );
+            notification6.markAsRead();
+            notificationRepository.save(notification6);
+            LOGGER.info("Created notification 6: Appointment confirmation for user {}", petLover.getId());
+
+            // Notification 7 - Payment reminder (unread)
+            var notification7 = new Notification(
+                    petLover.getId(),
+                    "Tienes un pago pendiente de S/150 por la consulta del 23 de noviembre.",
+                    "RecordatorioPago"
+            );
+            notificationRepository.save(notification7);
+            LOGGER.info("Created notification 7: Payment reminder for user {}", petLover.getId());
+
+            // Notification 8 - Survey request (unread)
+            var notification8 = new Notification(
+                    petLover.getId(),
+                    "Ayúdanos a mejorar. Completa nuestra encuesta de satisfacción sobre tu última visita.",
+                    "Encuesta"
+            );
+            notificationRepository.save(notification8);
+            LOGGER.info("Created notification 8: Survey request for user {}", petLover.getId());
 
             LOGGER.info("Database seeding completed successfully!");
         };
