@@ -1,12 +1,10 @@
 package com.dogimax.dogimaxapi.appointments.interfaces.rest;
 
 import com.dogimax.dogimaxapi.appointments.domain.model.commands.DeleteAppointmentCommand;
-import com.dogimax.dogimaxapi.appointments.domain.model.queries.GetAllAppointmentsQuery;
-import com.dogimax.dogimaxapi.appointments.domain.model.queries.GetAppointmentByIdQuery;
-import com.dogimax.dogimaxapi.appointments.domain.model.queries.GetAppointmentsByMascotaIdQuery;
-import com.dogimax.dogimaxapi.appointments.domain.model.queries.GetAppointmentsByveterinaryIdQuery;
+import com.dogimax.dogimaxapi.appointments.domain.model.queries.*;
 import com.dogimax.dogimaxapi.appointments.domain.services.AppointmentCommandService;
 import com.dogimax.dogimaxapi.appointments.domain.services.AppointmentQueryService;
+import com.dogimax.dogimaxapi.appointments.domain.services.veterinaryQueryService;
 import com.dogimax.dogimaxapi.appointments.interfaces.rest.resources.AppointmentResource;
 import com.dogimax.dogimaxapi.appointments.interfaces.rest.resources.CreateAppointmentResource;
 import com.dogimax.dogimaxapi.appointments.interfaces.rest.resources.UpdateAppointmentResource;
@@ -35,11 +33,14 @@ public class AppointmentsController {
 
     private final AppointmentCommandService appointmentCommandService;
     private final AppointmentQueryService appointmentQueryService;
+    private final veterinaryQueryService veterinaryQueryService;
 
     public AppointmentsController(AppointmentCommandService appointmentCommandService,
-                                 AppointmentQueryService appointmentQueryService) {
+                                 AppointmentQueryService appointmentQueryService,
+                                 veterinaryQueryService veterinaryQueryService) {
         this.appointmentCommandService = appointmentCommandService;
         this.appointmentQueryService = appointmentQueryService;
+        this.veterinaryQueryService = veterinaryQueryService;
     }
 
     /**
@@ -55,7 +56,11 @@ public class AppointmentsController {
         var getAllAppointmentsQuery = new GetAllAppointmentsQuery();
         var appointments = appointmentQueryService.handle(getAllAppointmentsQuery);
         var appointmentResources = appointments.stream()
-                .map(AppointmentResourceFromEntityAssembler::toResourceFromEntity)
+                .map(appointment -> {
+                    var veterinary = veterinaryQueryService.handle(new GetveterinaryByIdQuery(appointment.getVeterinaryId()))
+                            .orElse(null);
+                    return AppointmentResourceFromEntityAssembler.toResourceFromEntity(appointment, veterinary);
+                })
                 .toList();
         return ResponseEntity.ok(appointmentResources);
     }
@@ -77,7 +82,9 @@ public class AppointmentsController {
         if (appointment.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        var appointmentResource = AppointmentResourceFromEntityAssembler.toResourceFromEntity(appointment.get());
+        var veterinary = veterinaryQueryService.handle(new GetveterinaryByIdQuery(appointment.get().getVeterinaryId()))
+                .orElse(null);
+        var appointmentResource = AppointmentResourceFromEntityAssembler.toResourceFromEntity(appointment.get(), veterinary);
         return ResponseEntity.ok(appointmentResource);
     }
 
@@ -95,7 +102,11 @@ public class AppointmentsController {
         var query = new GetAppointmentsByMascotaIdQuery(mascotaId);
         var appointments = appointmentQueryService.handle(query);
         var appointmentResources = appointments.stream()
-                .map(AppointmentResourceFromEntityAssembler::toResourceFromEntity)
+                .map(appointment -> {
+                    var veterinary = veterinaryQueryService.handle(new GetveterinaryByIdQuery(appointment.getVeterinaryId()))
+                            .orElse(null);
+                    return AppointmentResourceFromEntityAssembler.toResourceFromEntity(appointment, veterinary);
+                })
                 .toList();
         return ResponseEntity.ok(appointmentResources);
     }
@@ -113,8 +124,10 @@ public class AppointmentsController {
     public ResponseEntity<List<AppointmentResource>> getAppointmentsByveterinaryId(@PathVariable Long veterinaryId) {
         var query = new GetAppointmentsByveterinaryIdQuery(veterinaryId);
         var appointments = appointmentQueryService.handle(query);
+        var veterinary = veterinaryQueryService.handle(new GetveterinaryByIdQuery(veterinaryId))
+                .orElse(null);
         var appointmentResources = appointments.stream()
-                .map(AppointmentResourceFromEntityAssembler::toResourceFromEntity)
+                .map(appointment -> AppointmentResourceFromEntityAssembler.toResourceFromEntity(appointment, veterinary))
                 .toList();
         return ResponseEntity.ok(appointmentResources);
     }
@@ -138,7 +151,9 @@ public class AppointmentsController {
         if (appointment.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-        var appointmentResource = AppointmentResourceFromEntityAssembler.toResourceFromEntity(appointment.get());
+        var veterinary = veterinaryQueryService.handle(new GetveterinaryByIdQuery(appointment.get().getVeterinaryId()))
+                .orElse(null);
+        var appointmentResource = AppointmentResourceFromEntityAssembler.toResourceFromEntity(appointment.get(), veterinary);
         return new ResponseEntity<>(appointmentResource, HttpStatus.CREATED);
     }
 
@@ -164,7 +179,9 @@ public class AppointmentsController {
         if (appointment.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        var appointmentResource = AppointmentResourceFromEntityAssembler.toResourceFromEntity(appointment.get());
+        var veterinary = veterinaryQueryService.handle(new GetveterinaryByIdQuery(appointment.get().getVeterinaryId()))
+                .orElse(null);
+        var appointmentResource = AppointmentResourceFromEntityAssembler.toResourceFromEntity(appointment.get(), veterinary);
         return ResponseEntity.ok(appointmentResource);
     }
 
