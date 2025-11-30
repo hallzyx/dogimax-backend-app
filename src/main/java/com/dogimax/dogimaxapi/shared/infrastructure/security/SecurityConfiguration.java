@@ -4,6 +4,7 @@ import com.dogimax.dogimaxapi.iam.infrastructure.authorization.sfs.pipeline.Bear
 import com.dogimax.dogimaxapi.iam.infrastructure.hashing.bcrypt.BCryptHashingService;
 import com.dogimax.dogimaxapi.iam.infrastructure.tokens.jwt.BearerTokenService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +21,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -36,6 +38,9 @@ public class SecurityConfiguration {
     private final BearerTokenService tokenService;
     private final BCryptHashingService hashingService;
     private final AuthenticationEntryPoint unauthorizedRequestHandler;
+
+    @Value("${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:3000}")
+    private String allowedOrigins;
 
     /**
      * Constructor
@@ -104,7 +109,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(configurer -> configurer.configurationSource(request -> {
             var cors = new CorsConfiguration();
-            cors.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:3000"));
+            cors.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
             cors.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
             cors.setAllowedHeaders(List.of("*"));
             cors.setAllowCredentials(true);
