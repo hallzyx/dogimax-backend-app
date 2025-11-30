@@ -8,9 +8,13 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 public class OpenApiConfiguration {
@@ -20,7 +24,9 @@ public class OpenApiConfiguration {
     String applicationDescription;
     @Value("${documentation.application.version}")
     String applicationVersion;
-
+    @Value("${server.url:http://localhost:8080}")
+    String serverUrl;
+    
     @Bean
     public OpenAPI learningPlatformOpenApi() {
         var openApi = new OpenAPI();
@@ -34,6 +40,13 @@ public class OpenApiConfiguration {
                         .description("ACME Learning Platform wiki Documentation")
                         .url("https://acme-learning-platform.wiki.github.io/docs"));
 
+        // Add server configuration
+        List<Server> servers = new ArrayList<>();
+        Server server = new Server();
+        server.setUrl(serverUrl);
+        server.setDescription("API Server");
+        servers.add(server);
+        openApi.servers(servers);
 
         // Add a security scheme
 
@@ -53,4 +66,5 @@ public class OpenApiConfiguration {
 
         return openApi;
     }
+
 }
