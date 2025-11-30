@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
  */
 public record CreateAppointmentCommand(
         Long mascotaId,
-        Long veterinaryId,
+        Long veterinaryId, // ID del usuario veterinario
         LocalDateTime fechaHora,
         String motivo,
         String estado,

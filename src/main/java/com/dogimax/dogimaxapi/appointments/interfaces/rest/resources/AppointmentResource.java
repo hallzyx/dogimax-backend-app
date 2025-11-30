@@ -9,11 +9,12 @@ import java.time.LocalDateTime;
 public record AppointmentResource(
         Long id,
         Long mascotaId,
-        Long veterinaryId,
+        Long veterinaryId, // ID del usuario veterinario
         LocalDateTime fechaHora,
         String motivo,
         String estado,
         String notas,
-        veterinaryResource veterinary
+        String veterinaryStatus,
+        veterinaryResource veterinary // Información de la clínica (si existe)
 ) {
 }

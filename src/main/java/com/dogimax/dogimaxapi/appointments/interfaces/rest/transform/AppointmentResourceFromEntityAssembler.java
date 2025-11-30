@@ -24,14 +24,15 @@ public class AppointmentResourceFromEntityAssembler {
                 entity.getMotivo(),
                 entity.getEstado(),
                 entity.getNotas(),
+                entity.getVeterinaryStatus(),
                 null // veterinary will be populated by controller
         );
     }
     
     /**
-     * Convert an Appointment entity to an AppointmentResource with veterinary
+     * Convert an Appointment entity to an AppointmentResource with veterinary clinic info
      * @param entity The appointment entity
-     * @param veterinary The veterinary entity
+     * @param veterinary The veterinary clinic entity
      * @return The appointment resource
      */
     public static AppointmentResource toResourceFromEntity(Appointment entity, veterinary veterinary) {
@@ -47,6 +48,7 @@ public class AppointmentResourceFromEntityAssembler {
                 entity.getMotivo(),
                 entity.getEstado(),
                 entity.getNotas(),
+                entity.getVeterinaryStatus(),
                 veterinaryResource
         );
     }

@@ -133,6 +133,29 @@ public class AppointmentsController {
     }
 
     /**
+     * Get appointments by pet owner id
+     * @param petOwnerId The pet owner (user) id
+     * @return List of appointments for all pets owned by the user
+     */
+    @GetMapping("/pet-owner/{petOwnerId}")
+    @Operation(summary = "Get appointments by pet owner", description = "Retrieve all appointments for pets owned by a specific user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Appointments retrieved successfully")
+    })
+    public ResponseEntity<List<AppointmentResource>> getAppointmentsByPetOwnerId(@PathVariable Long petOwnerId) {
+        var query = new GetAppointmentsByPetOwnerIdQuery(petOwnerId);
+        var appointments = appointmentQueryService.handle(query);
+        var appointmentResources = appointments.stream()
+                .map(appointment -> {
+                    var veterinary = veterinaryQueryService.handle(new GetveterinaryByIdQuery(appointment.getVeterinaryId()))
+                            .orElse(null);
+                    return AppointmentResourceFromEntityAssembler.toResourceFromEntity(appointment, veterinary);
+                })
+                .toList();
+        return ResponseEntity.ok(appointmentResources);
+    }
+
+    /**
      * Create a new appointment
      * @param createAppointmentResource The appointment data
      * @return The created appointment
@@ -204,5 +227,33 @@ public class AppointmentsController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    /**
+     * Update veterinary status of an appointment (accept or reject)
+     * @param appointmentId The appointment id
+     * @param veterinaryStatus The new veterinary status (ACCEPTED or REJECTED)
+     * @return The updated appointment
+     */
+    @PatchMapping("/{appointmentId}/veterinary-status")
+    @Operation(summary = "Update veterinary status", description = "Accept or reject an appointment request")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Veterinary status updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Appointment not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid status")
+    })
+    public ResponseEntity<AppointmentResource> updateVeterinaryStatus(
+            @PathVariable Long appointmentId,
+            @RequestParam String veterinaryStatus) {
+        var command = new com.dogimax.dogimaxapi.appointments.domain.model.commands.UpdateAppointmentVeterinaryStatusCommand(
+                appointmentId, veterinaryStatus);
+        var appointment = appointmentCommandService.handle(command);
+        if (appointment.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        var veterinary = veterinaryQueryService.handle(new GetveterinaryByIdQuery(appointment.get().getVeterinaryId()))
+                .orElse(null);
+        var appointmentResource = AppointmentResourceFromEntityAssembler.toResourceFromEntity(appointment.get(), veterinary);
+        return ResponseEntity.ok(appointmentResource);
     }
 }
