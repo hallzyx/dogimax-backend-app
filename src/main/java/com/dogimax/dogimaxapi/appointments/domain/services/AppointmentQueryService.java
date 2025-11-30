@@ -5,6 +5,7 @@ import com.dogimax.dogimaxapi.appointments.domain.model.queries.GetAllAppointmen
 import com.dogimax.dogimaxapi.appointments.domain.model.queries.GetAppointmentByIdQuery;
 import com.dogimax.dogimaxapi.appointments.domain.model.queries.GetAppointmentsByMascotaIdQuery;
 import com.dogimax.dogimaxapi.appointments.domain.model.queries.GetAppointmentsByveterinaryIdQuery;
+import com.dogimax.dogimaxapi.appointments.domain.model.queries.GetAppointmentsByPetOwnerIdQuery;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,4 +42,11 @@ public interface AppointmentQueryService {
      * @return List of appointments for the veterinary clinic
      */
     List<Appointment> handle(GetAppointmentsByveterinaryIdQuery query);
+
+    /**
+     * Handle get appointments by pet owner id query
+     * @param query The get appointments by pet owner id query
+     * @return List of appointments for all pets owned by the user
+     */
+    List<Appointment> handle(GetAppointmentsByPetOwnerIdQuery query);
 }

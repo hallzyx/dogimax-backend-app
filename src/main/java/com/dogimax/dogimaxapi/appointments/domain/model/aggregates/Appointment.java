@@ -21,7 +21,7 @@ public class Appointment extends AuditableAbstractAggregateRoot<Appointment> {
     private Long mascotaId;
 
     @Column(name = "veterinary_id", nullable = false)
-    private Long veterinaryId;
+    private Long veterinaryId; // ID del usuario veterinario (User con rol veterinary)
 
     @Column(name = "fecha_hora", nullable = false)
     private LocalDateTime fechaHora;
@@ -35,18 +35,22 @@ public class Appointment extends AuditableAbstractAggregateRoot<Appointment> {
     @Column(name = "notas", columnDefinition = "TEXT")
     private String notas;
 
+    @Column(name = "veterinary_status", nullable = false, length = 50)
+    private String veterinaryStatus;
+
     /**
      * Default constructor
      */
     public Appointment() {
         this.estado = "Programada";
         this.notas = "";
+        this.veterinaryStatus = "PENDING";
     }
 
     /**
      * Constructor with all required fields
      * @param mascotaId The pet ID
-     * @param veterinaryId The veterinary clinic ID
+     * @param veterinaryId The veterinary user ID (User with role veterinary)
      * @param fechaHora The appointment date and time
      * @param motivo The reason for the appointment
      * @param estado The appointment status
@@ -60,5 +64,6 @@ public class Appointment extends AuditableAbstractAggregateRoot<Appointment> {
         this.motivo = motivo;
         this.estado = estado != null && !estado.isEmpty() ? estado : "Programada";
         this.notas = notas != null ? notas : "";
+        this.veterinaryStatus = "PENDING";
     }
 }

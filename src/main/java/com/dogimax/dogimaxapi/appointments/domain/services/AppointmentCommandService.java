@@ -4,6 +4,7 @@ import com.dogimax.dogimaxapi.appointments.domain.model.aggregates.Appointment;
 import com.dogimax.dogimaxapi.appointments.domain.model.commands.CreateAppointmentCommand;
 import com.dogimax.dogimaxapi.appointments.domain.model.commands.DeleteAppointmentCommand;
 import com.dogimax.dogimaxapi.appointments.domain.model.commands.UpdateAppointmentCommand;
+import com.dogimax.dogimaxapi.appointments.domain.model.commands.UpdateAppointmentVeterinaryStatusCommand;
 
 import java.util.Optional;
 
@@ -31,4 +32,11 @@ public interface AppointmentCommandService {
      * @param command The delete appointment command
      */
     void handle(DeleteAppointmentCommand command);
+
+    /**
+     * Handle update appointment veterinary status command
+     * @param command The update appointment veterinary status command
+     * @return The updated appointment
+     */
+    Optional<Appointment> handle(UpdateAppointmentVeterinaryStatusCommand command);
 }
